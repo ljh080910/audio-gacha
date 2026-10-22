@@ -7722,23 +7722,27 @@ function generateAIQuestion() {
       : "🤖 " + category.toUpperCase();
 
 }
-document.getElementById("aiCorrectBtn").onclick = function () {
+
+
+document.getElementById("aiCorrectBtn").addEventListener("click", function () {
     const question = document.getElementById("aiQuestion").textContent;
+    const answer = document.getElementById("aiAnswer").textContent;
 
     if (!question || question.includes("버튼을 눌러")) return;
 
-    addHistory("정답", question);
+    addHistory("정답", question, answer);
     alert("⭕ 정답으로 기록했어.");
-};
+});
 
-document.getElementById("aiWrongBtn").onclick = function () {
+document.getElementById("aiWrongBtn").addEventListener("click", function () {
     const question = document.getElementById("aiQuestion").textContent;
+    const answer = document.getElementById("aiAnswer").textContent;
 
     if (!question || question.includes("버튼을 눌러")) return;
 
-    addHistory("오답", question);
+    addHistory("오답", question, answer);
     alert("❌ 오답으로 기록했어.");
-};
+});
 
 /* =========================
    정답 보기
