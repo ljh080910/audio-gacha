@@ -185,6 +185,327 @@ button:hover {
     font-size: 34px;
   }
 }
+/* =========================================================
+   DEEP WEB / BLOOD RED THEME
+   ========================================================= */
+
+:root {
+    --blood: #b00000;
+    --blood-bright: #ff1b1b;
+    --blood-dark: #520000;
+    --black: #020202;
+    --panel: rgba(5, 5, 5, 0.92);
+    --text: #eeeeee;
+}
+
+/* 전체 배경 */
+
+body {
+    background:
+        radial-gradient(
+            ellipse at center,
+            rgba(120, 0, 0, 0.16),
+            rgba(0, 0, 0, 0.92) 65%,
+            #000 100%
+        ) !important;
+
+    color: var(--text) !important;
+    font-family: "Courier New", Consolas, monospace !important;
+}
+
+/* 딥웹 스캔라인 */
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(255,255,255,0.025) 0px,
+            rgba(255,255,255,0.025) 1px,
+            transparent 1px,
+            transparent 4px
+        );
+
+    opacity: 0.35;
+}
+
+/* 붉은 노이즈 라인 */
+
+body::after {
+    content: "";
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 20%;
+    height: 1px;
+
+    background: rgba(255, 0, 0, 0.35);
+
+    box-shadow:
+        0 180px rgba(255,0,0,0.12),
+        0 380px rgba(255,0,0,0.10),
+        0 580px rgba(255,0,0,0.08);
+
+    pointer-events: none;
+    z-index: 9998;
+}
+
+/* 메인 카드 */
+
+.card,
+#aiQuestionBox {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(12, 12, 12, 0.97),
+            rgba(2, 2, 2, 0.95)
+        ) !important;
+
+    border: 1px solid rgba(255, 0, 0, 0.45) !important;
+
+    box-shadow:
+        0 0 25px rgba(100, 0, 0, 0.18),
+        inset 0 0 25px rgba(255, 0, 0, 0.025) !important;
+}
+
+/* 상단 로고 */
+
+.logo {
+    color: #fff !important;
+
+    font-family:
+        "Courier New",
+        Consolas,
+        monospace !important;
+
+    text-shadow:
+        2px 0 #ff0000,
+        -2px 0 #500000,
+        0 0 12px rgba(255,0,0,0.45);
+}
+
+/* 부제목 */
+
+.subtitle {
+    color: #777 !important;
+}
+
+/* 배지 */
+
+.badge,
+#category {
+    background: rgba(130, 0, 0, 0.3) !important;
+    color: #ff3b3b !important;
+
+    border: 1px solid rgba(255,0,0,0.4) !important;
+}
+
+/* 질문 */
+
+.question,
+#question,
+#aiQuestion {
+    color: #f1f1f1 !important;
+
+    font-family:
+        "Courier New",
+        Consolas,
+        monospace !important;
+
+    text-shadow:
+        0 0 5px rgba(255,255,255,0.08);
+
+    border-left: 3px solid #b00000 !important;
+}
+
+/* 정답 */
+
+.answer,
+#answer,
+#aiAnswer {
+    background: rgba(0,0,0,0.7) !important;
+
+    color: #ddd !important;
+
+    border-color:
+        rgba(255,0,0,0.3) !important;
+
+    border-left: 3px solid #ff1b1b !important;
+}
+
+/* 모든 버튼 */
+
+button {
+    font-family:
+        "Courier New",
+        Consolas,
+        monospace !important;
+
+    border-radius: 3px !important;
+
+    transition:
+        0.15s ease !important;
+}
+
+/* 기존 버튼들 */
+
+.buttons button,
+.ai-check-buttons button,
+#aiGenerateBtn,
+#aiAnswerBtn,
+#aiCorrectBtn,
+#aiWrongBtn {
+    background:
+        linear-gradient(
+            180deg,
+            #a90000,
+            #500000
+        ) !important;
+
+    color: #fff !important;
+
+    border: 1px solid rgba(255,30,30,0.7) !important;
+
+    box-shadow:
+        0 0 10px rgba(255,0,0,0.18) !important;
+}
+
+/* 버튼 호버 */
+
+.buttons button:hover,
+.ai-check-buttons button:hover,
+#aiGenerateBtn:hover,
+#aiAnswerBtn:hover,
+#aiCorrectBtn:hover,
+#aiWrongBtn:hover {
+    background:
+        linear-gradient(
+            180deg,
+            #e00000,
+            #720000
+        ) !important;
+
+    box-shadow:
+        0 0 20px rgba(255,0,0,0.42) !important;
+
+    transform: translateY(-1px);
+}
+
+/* AI 체크 버튼 */
+
+.ai-check-buttons {
+    display: flex !important;
+    gap: 10px !important;
+}
+
+.ai-check-buttons button {
+    flex: 1;
+}
+
+/* 선택창 */
+
+select {
+    background: #050505 !important;
+    color: #eee !important;
+
+    border: 1px solid rgba(255,0,0,0.55) !important;
+
+    font-family:
+        "Courier New",
+        monospace !important;
+}
+
+select:focus {
+    outline: none !important;
+
+    border-color: #ff1b1b !important;
+
+    box-shadow:
+        0 0 12px rgba(255,0,0,0.3);
+}
+
+/* 입력창 */
+
+input,
+textarea {
+    background: #050505 !important;
+    color: #eee !important;
+
+    border: 1px solid rgba(255,0,0,0.4) !important;
+
+    font-family:
+        "Courier New",
+        monospace !important;
+}
+
+input:focus,
+textarea:focus {
+    outline: none !important;
+
+    border-color: #ff1b1b !important;
+
+    box-shadow:
+        0 0 12px rgba(255,0,0,0.25);
+}
+
+/* 테이블 / 기록 */
+
+table {
+    background: rgba(0,0,0,0.8) !important;
+
+    border-color:
+        rgba(255,0,0,0.3) !important;
+}
+
+th {
+    background:
+        rgba(130,0,0,0.35) !important;
+
+    color: #ff3333 !important;
+
+    border-color:
+        rgba(255,0,0,0.35) !important;
+}
+
+td {
+    background:
+        rgba(0,0,0,0.7) !important;
+
+    color: #ccc !important;
+
+    border-color:
+        rgba(255,0,0,0.2) !important;
+}
+
+/* 스크롤바 */
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #020202;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #720000;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #ff1b1b;
+}
+
+/* 선택 영역 */
+
+::selection {
+    background: #a00000;
+    color: white;
+}  
 </style>
 </head>
 
