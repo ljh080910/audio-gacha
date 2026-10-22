@@ -505,6 +505,144 @@ td {
 ::selection {
     background: #a00000;
     color: white;
+  /* ===== DEEP WEB / BLOOD RED FINAL ===== */
+
+body {
+    background: #020202 !important;
+    color: #eee !important;
+    font-family: "Courier New", Consolas, monospace !important;
+}
+
+.app {
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(130, 0, 0, 0.18),
+            rgba(0, 0, 0, 0.96) 70%
+        ) !important;
+}
+
+.header {
+    border-bottom: 1px solid rgba(255, 0, 0, 0.35) !important;
+}
+
+.logo {
+    color: #fff !important;
+    text-shadow:
+        2px 0 #ff0000,
+        -2px 0 #550000 !important;
+}
+
+.subtitle {
+    color: #777 !important;
+}
+
+.card {
+    background: rgba(3, 3, 3, 0.94) !important;
+    border: 1px solid #8b0000 !important;
+
+    box-shadow:
+        0 0 25px rgba(180, 0, 0, 0.25),
+        inset 0 0 20px rgba(255, 0, 0, 0.04) !important;
+}
+
+.badge {
+    background: rgba(130, 0, 0, 0.3) !important;
+    color: #ff3333 !important;
+    border: 1px solid rgba(255, 0, 0, 0.45) !important;
+}
+
+.question,
+#question,
+#aiQuestion {
+    color: #fff !important;
+    border-left: 3px solid #b00000 !important;
+    text-shadow: 0 0 5px rgba(255,255,255,0.08);
+}
+
+.answer,
+#answer,
+#aiAnswer {
+    color: #ddd !important;
+    background: rgba(50, 0, 0, 0.18) !important;
+    border-left: 3px solid #ff0000 !important;
+}
+
+button,
+.buttons button,
+#aiGenerateBtn,
+#aiAnswerBtn,
+#aiCorrectBtn,
+#aiWrongBtn {
+    background:
+        linear-gradient(
+            180deg,
+            #c40000,
+            #5a0000
+        ) !important;
+
+    color: #fff !important;
+
+    border: 1px solid #ff2222 !important;
+
+    box-shadow:
+        0 0 12px rgba(255, 0, 0, 0.25) !important;
+
+    font-family: "Courier New", Consolas, monospace !important;
+}
+
+button:hover,
+.buttons button:hover,
+#aiGenerateBtn:hover,
+#aiAnswerBtn:hover,
+#aiCorrectBtn:hover,
+#aiWrongBtn:hover {
+    background:
+        linear-gradient(
+            180deg,
+            #ff1a1a,
+            #800000
+        ) !important;
+
+    box-shadow:
+        0 0 22px rgba(255, 0, 0, 0.5) !important;
+
+    transform: translateY(-1px);
+}
+
+select {
+    background: #050505 !important;
+    color: #fff !important;
+    border: 1px solid #900000 !important;
+}
+
+input,
+textarea {
+    background: #050505 !important;
+    color: #eee !important;
+    border: 1px solid #900000 !important;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #000;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #700000;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #ff0000;
+}
+
+::selection {
+    background: #a00000;
+    color: #fff;
+}
 }  
 </style>
 </head>
