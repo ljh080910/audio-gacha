@@ -690,6 +690,358 @@ function addHistory(result, question) {
 
 })();
 </script>
+<!-- =========================
+     AI 음향 질문 기능
+========================= -->
 
+<div id="aiQuestionBox">
+
+  <div class="ai-title">🤖 AI 음향 질문</div>
+
+  <div class="ai-description">
+    음향 분야를 선택하면 새로운 문제를 만들어준다.
+  </div>
+
+  <div class="ai-controls">
+
+    <select id="aiCategory">
+      <option value="random">🎧 랜덤 음향</option>
+      <option value="기초">📚 음향 기초</option>
+      <option value="마이크">🎤 마이크</option>
+      <option value="스피커">🔊 스피커</option>
+      <option value="믹싱">🎚️ 믹싱</option>
+      <option value="녹음">🎙️ 녹음</option>
+      <option value="음향공학">⚙️ 음향공학</option>
+    </select>
+
+    <button id="aiGenerateBtn">✨ 질문 만들기</button>
+
+  </div>
+
+  <div id="aiResult" class="ai-result">
+
+    <div class="ai-result-category">
+      AI QUESTION
+    </div>
+
+    <div id="aiQuestion">
+      버튼을 눌러 새로운 음향 질문을 만들어봐.
+    </div>
+
+    <button id="aiAnswerBtn" class="ai-answer-btn">
+      💡 정답 보기
+    </button>
+
+    <div id="aiAnswer" class="ai-answer"></div>
+
+  </div>
+
+</div>
+
+<style>
+
+#aiQuestionBox {
+  margin-top: 30px;
+  padding: 25px;
+  border-radius: 22px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(88, 70, 255, 0.16),
+      rgba(0, 212, 255, 0.08)
+    ),
+    rgba(20, 23, 38, 0.95);
+  border: 1px solid rgba(130, 110, 255, 0.25);
+  box-shadow: 0 15px 45px rgba(0,0,0,0.25);
+}
+
+.ai-title {
+  font-size: 25px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.ai-description {
+  color: #8f96ad;
+  font-size: 14px;
+  margin-bottom: 18px;
+}
+
+.ai-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+#aiCategory {
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 13px;
+  background: #15192b;
+  color: white;
+  font-size: 15px;
+}
+
+#aiGenerateBtn {
+  background: linear-gradient(135deg, #6655ff, #9d4edd);
+  color: white;
+}
+
+.ai-result {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.ai-result-category {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #6655ff22;
+  color: #9b8cff;
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+#aiQuestion {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.5;
+  margin-bottom: 15px;
+}
+
+.ai-answer-btn {
+  background: #ffffff10;
+  border: 1px solid #ffffff12;
+  color: white;
+  width: 100%;
+}
+
+.ai-answer {
+  display: none;
+  margin-top: 15px;
+  padding: 15px;
+  border-radius: 12px;
+  background: #00000022;
+  color: #cfd4e8;
+  line-height: 1.7;
+}
+
+.ai-answer.show {
+  display: block;
+}
+
+@media (max-width: 600px) {
+  .ai-controls {
+    grid-template-columns: 1fr;
+  }
+
+  #aiQuestion {
+    font-size: 18px;
+  }
+}
+
+</style>
+
+<script>
+
+/* =========================
+   음향 질문 데이터
+========================= */
+
+const aiQuestionBank = {
+
+  "기초": [
+    {
+      question: "샘플링 주파수(Sampling Rate)가 높아지면 디지털 오디오에서 어떤 변화가 생기는가?",
+      answer: "초당 더 많은 샘플을 측정할 수 있다. 일반적으로 더 높은 주파수 성분을 표현할 수 있지만 파일 크기도 커질 수 있다."
+    },
+    {
+      question: "비트 깊이(Bit Depth)가 증가하면 오디오에서 무엇이 좋아지는가?",
+      answer: "진폭을 표현할 수 있는 단계가 많아져 양자화 오차와 양자화 노이즈를 줄이는 데 도움이 된다."
+    },
+    {
+      question: "dB는 무엇을 나타내는 단위인가?",
+      answer: "두 값의 비율을 로그 스케일로 표현하는 단위다. 음향에서는 음압, 전력, 이득 등을 표현할 때 사용한다."
+    },
+    {
+      question: "주파수가 높아지면 일반적으로 소리는 어떻게 느껴지는가?",
+      answer: "더 높은 음, 즉 높은 피치로 느껴진다."
+    }
+  ],
+
+  "마이크": [
+    {
+      question: "다이내믹 마이크가 큰 음압에 비교적 강한 이유는 무엇인가?",
+      answer: "구조가 비교적 단순하고 높은 음압을 견디는 데 유리한 구조를 갖는 경우가 많기 때문이다."
+    },
+    {
+      question: "콘덴서 마이크에 팬텀 파워가 필요한 경우가 있는 이유는?",
+      answer: "마이크의 전자 회로와 캡슐을 작동시키기 위한 전원이 필요하기 때문이다."
+    },
+    {
+      question: "마이크의 지향성은 무엇을 의미하는가?",
+      answer: "마이크가 어느 방향에서 들어오는 소리를 얼마나 잘 받아들이는지를 나타내는 특성이다."
+    },
+    {
+      question: "카디오이드 마이크는 주로 어느 방향의 소리를 잘 받는가?",
+      answer: "마이크 앞쪽의 소리를 주로 받아들이고 뒤쪽의 소리를 상대적으로 덜 받는다."
+    }
+  ],
+
+  "스피커": [
+    {
+      question: "스피커의 임피던스는 무엇을 의미하는가?",
+      answer: "교류 신호에서 전류의 흐름을 방해하는 정도를 나타내는 값이며 Ω(옴)으로 표시한다."
+    },
+    {
+      question: "스피커의 감도(Sensitivity)는 무엇을 나타내는가?",
+      answer: "일정한 입력 조건에서 스피커가 얼마나 큰 음압을 만들어내는지를 나타내는 지표다."
+    },
+    {
+      question: "우퍼와 트위터의 가장 큰 차이는 무엇인가?",
+      answer: "우퍼는 주로 저주파 영역을 담당하고 트위터는 주로 고주파 영역을 담당한다."
+    }
+  ],
+
+  "믹싱": [
+    {
+      question: "EQ에서 특정 주파수 대역을 낮추는 것을 무엇이라고 하는가?",
+      answer: "Cut 또는 감쇠라고 한다."
+    },
+    {
+      question: "컴프레서는 오디오 신호에서 어떤 역할을 하는가?",
+      answer: "신호의 다이내믹 레인지를 줄여 큰 소리와 작은 소리의 차이를 조절한다."
+    },
+    {
+      question: "리버브를 사용하는 주요 목적은 무엇인가?",
+      answer: "공간감과 잔향을 만들어 소리가 특정 공간에서 울리는 것처럼 느껴지게 하는 것이다."
+    },
+    {
+      question: "팬(Pan)은 믹싱에서 무엇을 조절하는가?",
+      answer: "소리를 스테레오 좌우 공간에서 어느 위치에 배치할지를 조절한다."
+    }
+  ],
+
+  "녹음": [
+    {
+      question: "클리핑(Clipping)이 발생하면 오디오에 어떤 문제가 생기는가?",
+      answer: "신호가 장비나 시스템의 최대 레벨을 넘어 파형이 잘리면서 심한 왜곡이 발생할 수 있다."
+    },
+    {
+      question: "녹음할 때 입력 게인을 너무 높게 설정하면 어떤 문제가 생기는가?",
+      answer: "입력 신호가 과도하게 커져 클리핑과 왜곡이 발생할 수 있다."
+    },
+    {
+      question: "마이크와 음원 사이의 거리를 바꾸면 녹음 음색도 달라질 수 있는 이유는?",
+      answer: "직접음과 반사음의 비율, 근접 효과, 공간의 영향을 받기 때문이다."
+    }
+  ],
+
+  "음향공학": [
+    {
+      question: "주파수 응답(Frequency Response)이란 무엇인가?",
+      answer: "오디오 장비가 주파수별 신호를 얼마나 출력하거나 전달하는지를 나타내는 특성이다."
+    },
+    {
+      question: "위상(Phase)은 음향 신호에서 무엇을 나타내는가?",
+      answer: "주기적인 파형에서 특정 시점의 위치나 시간적 관계를 나타낸다."
+    },
+    {
+      question: "두 개의 동일한 신호가 서로 반대 위상으로 만나면 어떤 현상이 발생할 수 있는가?",
+      answer: "상쇄 간섭이 발생해 특정 주파수 성분이 크게 감소하거나 사라질 수 있다."
+    }
+  ]
+
+};
+
+
+/* =========================
+   랜덤 질문 생성
+========================= */
+
+function generateAIQuestion() {
+
+  const category =
+    document.getElementById("aiCategory").value;
+
+  let pool = [];
+
+  if (category === "random") {
+
+    Object.keys(aiQuestionBank).forEach(key => {
+      pool = pool.concat(aiQuestionBank[key]);
+    });
+
+  } else {
+
+    pool = aiQuestionBank[category] || [];
+
+  }
+
+  if (pool.length === 0) return;
+
+  const randomIndex =
+    Math.floor(Math.random() * pool.length);
+
+  const selected = pool[randomIndex];
+
+  document.getElementById("aiQuestion").textContent =
+    selected.question;
+
+  document.getElementById("aiAnswer").textContent =
+    selected.answer;
+
+  document.getElementById("aiAnswer").classList.remove("show");
+
+  document.querySelector(".ai-result-category").textContent =
+    category === "random"
+      ? "🎲 RANDOM AUDIO"
+      : "🤖 " + category.toUpperCase();
+
+}
+
+
+/* =========================
+   정답 보기
+========================= */
+
+document.getElementById("aiAnswerBtn").onclick = function () {
+
+  const answer =
+    document.getElementById("aiAnswer");
+
+  answer.classList.toggle("show");
+
+  this.textContent =
+    answer.classList.contains("show")
+      ? "🙈 정답 숨기기"
+      : "💡 정답 보기";
+
+};
+
+
+/* =========================
+   질문 만들기
+========================= */
+
+document.getElementById("aiGenerateBtn").onclick =
+  function () {
+
+    generateAIQuestion();
+
+  };
+
+
+/* =========================
+   첫 질문 자동 생성
+========================= */
+
+generateAIQuestion();
+
+</script>
 </body>
 </html>
