@@ -757,7 +757,31 @@ function addHistory(result, question) {
   border: 1px solid rgba(130, 110, 255, 0.25);
   box-shadow: 0 15px 45px rgba(0,0,0,0.25);
 }
+.ai-check-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
 
+.ai-check-buttons button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+    color: white;
+    background: #4b5563;
+}
+
+#aiCorrectBtn {
+    background: #16a34a;
+}
+
+#aiWrongBtn {
+    background: #dc2626;
+}
 .ai-title {
   font-size: 25px;
   font-weight: 900;
