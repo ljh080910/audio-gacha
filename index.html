@@ -345,7 +345,350 @@ function addHistory(result, question) {
 
   list.prepend(item);
 }
+/* =========================
+   7일 오답 노트
+========================= */
 
+(function () {
+  const STORAGE_KEY = "audioGachaWrongNote_v1";
+
+  function todayKey() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+
+  function getData() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+
+    return {
+      startDate: todayKey(),
+      records: {}
+    };
+  }
+
+  function saveData(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function dayNumber(startDate) {
+    const start = new Date(startDate + "T00:00:00");
+    const now = new Date(todayKey() + "T00:00:00");
+
+    const diff = Math.floor(
+      (now - start) / (1000 * 60 * 60 * 24)
+    );
+
+    return Math.max(1, Math.min(7, diff + 1));
+  }
+
+  function cleanOldRecords(data) {
+    const keys = Object.keys(data.records);
+
+    keys.forEach(key => {
+      const start = new Date(data.startDate + "T00:00:00");
+      const date = new Date(key + "T00:00:00");
+
+      const diff = Math.floor(
+        (date - start) / (1000 * 60 * 60 * 24)
+      );
+
+      if (diff < 0 || diff >= 7) {
+        delete data.records[key];
+      }
+    });
+
+    saveData(data);
+  }
+
+  /* 기존 addHistory를 그대로 살리면서
+     '오답'일 때 localStorage에도 저장 */
+  const originalAddHistory = window.addHistory;
+
+  window.addHistory = function (result, question) {
+    if (typeof originalAddHistory === "function") {
+      originalAddHistory(result, question);
+    }
+
+    if (result !== "오답") return;
+
+    const data = getData();
+    const date = todayKey();
+
+    if (!data.records[date]) {
+      data.records[date] = [];
+    }
+
+    data.records[date].push({
+      question: String(question || ""),
+      time: new Date().toLocaleTimeString("ko-KR")
+    });
+
+    cleanOldRecords(data);
+    saveData(data);
+    renderWrongNote();
+  };
+
+  /* 오답노트 UI */
+  function createWrongNote() {
+    if (document.getElementById("wrongNoteBox")) return;
+
+    const box = document.createElement("div");
+    box.id = "wrongNoteBox";
+
+    box.innerHTML = `
+      <div class="wrong-note-title">
+        📝 7일 오답 노트
+      </div>
+
+      <div id="wrongNoteInfo" class="wrong-note-info"></div>
+
+      <div class="wrong-note-buttons">
+        <button id="wrongTodayBtn">오늘</button>
+        <button id="wrongYesterdayBtn">어제</button>
+        <button id="wrongAllBtn">7일 전체</button>
+        <button id="wrongResetBtn">날짜 리셋</button>
+      </div>
+
+      <div id="wrongNoteList"></div>
+    `;
+
+    const app = document.querySelector(".app");
+
+    if (app) {
+      app.appendChild(box);
+    } else {
+      document.body.appendChild(box);
+    }
+
+    document.getElementById("wrongTodayBtn").onclick = function () {
+      renderWrongNote("today");
+    };
+
+    document.getElementById("wrongYesterdayBtn").onclick = function () {
+      renderWrongNote("yesterday");
+    };
+
+    document.getElementById("wrongAllBtn").onclick = function () {
+      renderWrongNote("all");
+    };
+
+    document.getElementById("wrongResetBtn").onclick = function () {
+      const ok = confirm(
+        "7일 오답 기록을 모두 지우고 새로운 1일차로 시작할까?"
+      );
+
+      if (!ok) return;
+
+      const data = {
+        startDate: todayKey(),
+        records: {}
+      };
+
+      saveData(data);
+      renderWrongNote("today");
+      alert("날짜가 리셋됐어. 오늘부터 다시 1일차다.");
+    };
+
+    renderWrongNote("today");
+  }
+
+  function renderWrongNote(mode = "today") {
+    const data = getData();
+    cleanOldRecords(data);
+
+    const list = document.getElementById("wrongNoteList");
+    const info = document.getElementById("wrongNoteInfo");
+
+    if (!list || !info) return;
+
+    const currentDay = dayNumber(data.startDate);
+
+    info.innerHTML =
+      `현재 <b>${currentDay}일차</b> · 시작일 ${data.startDate}`;
+
+    let entries = [];
+
+    if (mode === "today") {
+      const date = todayKey();
+
+      entries = (data.records[date] || []).map(item => ({
+        date,
+        ...item
+      }));
+    }
+
+    if (mode === "yesterday") {
+      const d = new Date();
+      d.setDate(d.getDate() - 1);
+
+      const date =
+        d.getFullYear() +
+        "-" +
+        String(d.getMonth() + 1).padStart(2, "0") +
+        "-" +
+        String(d.getDate()).padStart(2, "0");
+
+      entries = (data.records[date] || []).map(item => ({
+        date,
+        ...item
+      }));
+    }
+
+    if (mode === "all") {
+      Object.keys(data.records)
+        .sort()
+        .forEach(date => {
+          data.records[date].forEach(item => {
+            entries.push({
+              date,
+              ...item
+            });
+          });
+        });
+    }
+
+    if (entries.length === 0) {
+      list.innerHTML = `
+        <div class="wrong-empty">
+          이 날짜에는 틀린 문제가 없음.
+        </div>
+      `;
+      return;
+    }
+
+    list.innerHTML = entries
+      .map((item, index) => `
+        <div class="wrong-item">
+          <div class="wrong-item-top">
+            <span>❌ 오답 ${index + 1}</span>
+            <small>${item.date} ${item.time}</small>
+          </div>
+
+          <div class="wrong-question">
+            ${escapeHTML(item.question)}
+          </div>
+        </div>
+      `)
+      .join("");
+  }
+
+  function escapeHTML(text) {
+    return text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  /* CSS 추가 */
+  const style = document.createElement("style");
+
+  style.textContent = `
+    #wrongNoteBox {
+      margin-top: 30px;
+      padding: 22px;
+      border-radius: 18px;
+      background: rgba(20, 25, 55, 0.95);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: white;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    .wrong-note-title {
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .wrong-note-info {
+      color: #9fa8c7;
+      margin-bottom: 15px;
+    }
+
+    .wrong-note-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .wrong-note-buttons button {
+      border: 0;
+      border-radius: 10px;
+      padding: 9px 13px;
+      background: #30385f;
+      color: white;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .wrong-note-buttons button:hover {
+      background: #4653a0;
+    }
+
+    #wrongResetBtn {
+      background: #8b3045;
+    }
+
+    #wrongResetBtn:hover {
+      background: #b33d58;
+    }
+
+    .wrong-item {
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.06);
+      border-left: 4px solid #ff5577;
+    }
+
+    .wrong-item-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+      color: #ff7892;
+      font-weight: 700;
+    }
+
+    .wrong-item-top small {
+      color: #8f98b5;
+      font-weight: 400;
+    }
+
+    .wrong-question {
+      color: white;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .wrong-empty {
+      padding: 20px;
+      text-align: center;
+      color: #858eaa;
+    }
+  `;
+
+  document.head.appendChild(style);
+
+  /* 페이지가 만들어진 뒤 오답노트 생성 */
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", createWrongNote);
+  } else {
+    createWrongNote();
+  }
+
+})();
 </script>
 
 </body>
