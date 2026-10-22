@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>음향 가챠</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Arial, "Noto Sans KR", sans-serif;
+  background:
+    radial-gradient(circle at 20% 20%, #4635ff33, transparent 35%),
+    radial-gradient(circle at 80% 80%, #00d4ff22, transparent 35%),
+    #080a12;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.app {
+  width: min(900px, 100%);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.logo {
+  font-size: 42px;
+  font-weight: 900;
+  letter-spacing: -2px;
+}
+
+.subtitle {
+  color: #8f96ad;
+  margin-top: 8px;
+}
+
+.card {
+  background: rgba(20, 23, 38, 0.88);
+  border: 1px solid #ffffff14;
+  border-radius: 28px;
+  padding: 35px;
+  box-shadow: 0 25px 80px #00000066;
+  backdrop-filter: blur(20px);
+}
+
+.badge {
+  display: inline-block;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #5948ff22;
+  color: #8f82ff;
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.question {
+  font-size: clamp(25px, 5vw, 42px);
+  line-height: 1.25;
+  font-weight: 800;
+  margin-bottom: 30px;
+}
+
+.answer {
+  display: none;
+  background: #ffffff08;
+  border: 1px solid #ffffff12;
+  border-radius: 18px;
+  padding: 20px;
+  margin-bottom: 25px;
+  color: #d8dcf0;
+  line-height: 1.7;
+}
+
+.answer.show {
+  display: block;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+button {
+  border: 0;
+  border-radius: 16px;
+  padding: 17px 20px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.18s;
+}
+
+button:hover {
+  transform: translateY(-2px);
+}
+
+.gacha {
+  width: 100%;
+  margin-top: 15px;
+  background: linear-gradient(135deg, #6655ff, #9d4edd);
+  color: white;
+  box-shadow: 0 10px 35px #6655ff44;
+}
+
+.review {
+  background: #ffffff0d;
+  color: white;
+  border: 1px solid #ffffff12;
+}
+
+.check {
+  background: #1ed760;
+  color: #07110a;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 25px;
+  color: #858ba1;
+  font-size: 14px;
+}
+
+.stats strong {
+  color: white;
+}
+
+.history {
+  margin-top: 20px;
+  display: none;
+}
+
+.history.show {
+  display: block;
+}
+
+.history h3 {
+  margin-bottom: 12px;
+}
+
+.history-item {
+  background: #ffffff07;
+  border-radius: 12px;
+  padding: 12px 15px;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.correct {
+  color: #1ed760;
+}
+
+.wrong {
+  color: #ff5964;
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 12px;
+  }
+
+  .card {
+    padding: 23px;
+    border-radius: 22px;
+  }
+
+  .buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .logo {
+    font-size: 34px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <div class="header">
+    <div class="logo">🎧 AUDIO GACHA</div>
+    <div class="subtitle">오늘의 음향 문제를 랜덤으로 뽑아보자</div>
+  </div>
+
+  <div class="card">
+
+    <div class="badge" id="category">READY</div>
+
+    <div class="question" id="question">
+      아래 버튼을 눌러<br>
+      첫 번째 문제를 뽑아봐.
+    </div>
+
+    <div class="answer" id="answer"></div>
+
+    <div class="buttons">
+
+      <button class="review" onclick="showAnswer()">
+        📖 복습하기
+      </button>
+
+      <button class="check" onclick="checkAnswer()">
+        ✓ 체크
+      </button>
+
+    </div>
+
+    <button class="gacha" onclick="drawQuestion()">
+      🎰 메인 문제 뽑기
+    </button>
+
+    <div class="stats">
+      <span>뽑은 문제 <strong id="drawCount">0</strong></span>
+      <span>정답 <strong id="correctCount">0</strong></span>
+      <span>오답 <strong id="wrongCount">0</strong></span>
+    </div>
+
+    <div class="history" id="history">
+      <h3>📊 최근 기록</h3>
+      <div id="historyList"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+
+const questions = [
+  {
+    category: "음향 기초",
+    question: "주파수(Frequency)란 무엇인가?",
+    answer: "1초 동안 진동하는 횟수를 말한다. 단위는 Hz(헤르츠)를 사용한다."
+  },
+  {
+    category: "음향 기초",
+    question: "진폭(Amplitude)이 커지면 일반적으로 어떻게 들리는가?",
+    answer: "소리가 더 크게 들린다. 진폭은 음압의 크기와 관련이 있다."
+  },
+  {
+    category: "음향 기초",
+    question: "사람이 일반적으로 들을 수 있는 주파수 범위는?",
+    answer: "대략 20Hz ~ 20kHz이다. 개인의 나이와 청력에 따라 달라질 수 있다."
+  },
+  {
+    category: "마이크",
+    question: "다이내믹 마이크와 콘덴서 마이크의 대표적인 차이는?",
+    answer: "다이내믹 마이크는 구조가 비교적 단순하고 높은 음압에 강한 편이며, 콘덴서 마이크는 높은 감도와 섬세한 고주파 응답을 갖는 경우가 많다."
+  },
+  {
+    category: "스피커",
+    question: "스피커의 임피던스(Impedance)는 무엇을 나타내는가?",
+    answer: "교류 신호에서 전류의 흐름을 방해하는 정도를 나타내는 값이다. 단위는 Ω(옴)을 사용한다."
+  }
+];
+
+let currentQuestion = null;
+let drawCount = 0;
+let correctCount = 0;
+let wrongCount = 0;
+
+function drawQuestion() {
+
+  const index = Math.floor(Math.random() * questions.length);
+  currentQuestion = questions[index];
+
+  document.getElementById("category").textContent =
+    currentQuestion.category;
+
+  document.getElementById("question").textContent =
+    currentQuestion.question;
+
+  document.getElementById("answer").textContent =
+    currentQuestion.answer;
+
+  document.getElementById("answer").classList.remove("show");
+
+  drawCount++;
+
+  document.getElementById("drawCount").textContent = drawCount;
+}
+
+function showAnswer() {
+
+  if (!currentQuestion) return;
+
+  document.getElementById("answer").classList.add("show");
+}
+
+function checkAnswer() {
+
+  if (!currentQuestion) {
+    alert("먼저 문제를 하나 뽑아.");
+    return;
+  }
+
+  const result = confirm(
+    "이 문제를 맞혔어?\n\n확인 = 정답\n취소 = 오답"
+  );
+
+  if (result) {
+    correctCount++;
+    addHistory("정답", currentQuestion.question);
+  } else {
+    wrongCount++;
+    addHistory("오답", currentQuestion.question);
+  }
+
+  document.getElementById("correctCount").textContent =
+    correctCount;
+
+  document.getElementById("wrongCount").textContent =
+    wrongCount;
+}
+
+function addHistory(result, question) {
+
+  const history = document.getElementById("history");
+  const list = document.getElementById("historyList");
+
+  history.classList.add("show");
+
+  const item = document.createElement("div");
+
+  item.className = "history-item";
+
+  item.innerHTML =
+    `<span class="${result === "정답" ? "correct" : "wrong"}">
+      ${result}
+    </span> · ${question}`;
+
+  list.prepend(item);
+}
+
+</script>
+
+</body>
+</html>
